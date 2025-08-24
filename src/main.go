@@ -12,6 +12,7 @@ import (
 
 func main() {
 	mainDB := initMainDB()
+	defer mainDB.Close()
 	mux := http.NewServeMux()
 
 	appModule(mainDB, mux)

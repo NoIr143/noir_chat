@@ -3,6 +3,8 @@ package configs
 import (
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 type EnvConfig struct {
@@ -17,6 +19,8 @@ type EnvConfig struct {
 var EnvConfigs = initConfig()
 
 func initConfig() EnvConfig {
+	godotenv.Load()
+
 	return EnvConfig{
 		DB_NAME:     getEnv("DB_NAME", ""),
 		DB_HOST:     getEnv("DB_HOST", "localhost"),
