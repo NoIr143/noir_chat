@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/noir143/noir_chat/src/database"
+	"github.com/noir143/noir_chat/src/modules/features/auth"
 	"github.com/noir143/noir_chat/src/modules/features/users"
 )
 
@@ -33,4 +34,5 @@ func initMainDB() *sql.DB {
 
 func appModule(mainDB *sql.DB, mux *http.ServeMux) {
 	users.UserModule(mainDB, mux)
+	auth.AuthModule(mainDB, mux)
 }

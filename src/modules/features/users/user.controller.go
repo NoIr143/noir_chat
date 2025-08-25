@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/noir143/noir_chat/src/modules/features/users/dtos"
-	"github.com/noir143/noir_chat/src/utils"
+	"github.com/noir143/noir_chat/src/shared/utils"
 )
 
 type UserController struct {
