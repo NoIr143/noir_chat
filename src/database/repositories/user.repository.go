@@ -61,14 +61,7 @@ func (r *UserRepository) GetByEmail(email string) (entities.User, error) {
 	var user entities.User
 	err := r.db.QueryRow(query, email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.HashedPassword, &user.CreatedAt, &user.UpdatedAt)
 
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return entities.User{}, errors.New("user not found")
-		}
-		return entities.User{}, err
-	}
-
-	return user, nil
+	return user, err
 }
 
 func (r *UserRepository) GetAll() ([]entities.User, error) {

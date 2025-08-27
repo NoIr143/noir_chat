@@ -1,0 +1,9 @@
+{
+    "internal_exception": "A system error occurred please contact us for processing.",
+    "user_email_already_exist": "This email already exists in the system",
+    "invalid_parameter": "The input data is incorrect. Please check again.",
+    "not_found": "Resource could not be found. Please check again.",
+    "unauthorized": "You need to login to access the resource. Please try again.",
+    "forbidden": "You cannot access this resource please check again.",
+    "invalid_credentials": "Incorrect account or password, please check again."
+}

@@ -2,8 +2,6 @@ package utils
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 
@@ -29,20 +27,6 @@ func CreateJWT(secret []byte, userID int) (string, error) {
 	}
 
 	return tokenString, err
-}
-
-func validateJWT(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(configs.EnvConfigs.JWT_SECRET), nil
-	})
-}
-
-func permissionDenied(w http.ResponseWriter) {
-	WriteError(w, http.StatusForbidden, fmt.Errorf("permission denied"))
 }
 
 func GetUserIDFromContext(ctx context.Context) int {

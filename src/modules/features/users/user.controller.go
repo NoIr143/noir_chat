@@ -29,7 +29,7 @@ func (userController *UserController) RegisterRoutes(mux *http.ServeMux) {
 func (userController *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userCreateDTO dtos.UserCreateDTO
 	if err := utils.ParseJSON(r, &userCreateDTO); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (userController *UserController) CreateUser(w http.ResponseWriter, r *http.
 func (userController *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := userController.userService.GetUsers(1, 10)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func (userController *UserController) GetUser(w http.ResponseWriter, r *http.Req
 func (userController *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var userUpdateDTO dtos.UserUpdateDTO
 	if err := utils.ParseJSON(r, &userUpdateDTO); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, err)
 		return
 	}
 	userController.userService.UpdateUser(1, userUpdateDTO)

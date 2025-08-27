@@ -1,13 +1,13 @@
 package auth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	common "github.com/noir143/noir_chat/src/common/dtos"
 	authDto "github.com/noir143/noir_chat/src/modules/features/auth/dtos"
+	"github.com/noir143/noir_chat/src/shared/exceptions"
 	"github.com/noir143/noir_chat/src/shared/utils"
 )
 
@@ -32,19 +32,19 @@ func (authController *AuthController) RegisterRoutes(mux *http.ServeMux) {
 func (authController *AuthController) register(w http.ResponseWriter, r *http.Request) {
 	var registerDto authDto.RegisterDTO
 	if err := utils.ParseJSON(r, &registerDto); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, exceptions.InternalException{Error: err})
 		return
 	}
 
 	if err := utils.Validate.Struct(registerDto); err != nil {
 		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		utils.WriteError(w, exceptions.InvalidParameterException{ValidationErrors: errors})
 		return
 	}
 
 	user, err := authController.authService.Register(registerDto)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, err)
 		return
 	}
 
@@ -54,19 +54,19 @@ func (authController *AuthController) register(w http.ResponseWriter, r *http.Re
 func (authController *AuthController) login(w http.ResponseWriter, r *http.Request) {
 	var loginDto authDto.LoginDTO
 	if err := utils.ParseJSON(r, &loginDto); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, exceptions.InternalException{Error: err})
 		return
 	}
 
 	if err := utils.Validate.Struct(loginDto); err != nil {
 		errors := err.(validator.ValidationErrors)
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		utils.WriteError(w, exceptions.InvalidParameterException{ValidationErrors: errors})
 		return
 	}
 
 	loginResponseDTO, err := authController.authService.Login(loginDto)
 	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, err)
 		return
 	}
 

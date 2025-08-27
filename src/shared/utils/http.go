@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/noir143/noir_chat/src/shared/exceptions"
 )
 
 var Validate = validator.New()
@@ -16,8 +17,31 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-func WriteError(w http.ResponseWriter, status int, err error) {
-	WriteJSON(w, status, map[string]string{"error": err.Error()})
+func WriteError(w http.ResponseWriter, err any) {
+
+	switch v := err.(type) {
+	case exceptions.InternalException:
+		WriteJSON(w, http.StatusInternalServerError, exceptions.HandleExeption("NC_500", http.StatusInternalServerError, "internal_exception"))
+	case exceptions.BadRequestException:
+		WriteJSON(w, http.StatusBadRequest, exceptions.HandleExeption("NC_400", http.StatusBadRequest, v.Message))
+	case exceptions.NotFoundException:
+		WriteJSON(w, http.StatusNotFound, exceptions.HandleExeption("NC_404", http.StatusNotFound, "not_found"))
+	case exceptions.UnauthorizedException:
+		WriteJSON(w, http.StatusUnauthorized, exceptions.HandleExeption("NC_401", http.StatusUnauthorized, "unauthorized"))
+	case exceptions.ForbiddenException:
+		WriteJSON(w, http.StatusForbidden, exceptions.HandleExeption("NC_403", http.StatusForbidden, "forbidden"))
+	case exceptions.InvalidParameterException:
+		var invalidParameterResponses []exceptions.InvalidParamterResponse
+
+		for _, e := range v.ValidationErrors {
+			invalidParameterResponses = append(invalidParameterResponses, exceptions.InvalidParamterResponse{
+				Property: e.Field(),
+				Message:  e.Error(),
+			})
+		}
+
+		WriteJSON(w, http.StatusBadRequest, exceptions.HandleInvalidParameterException("NC_800", http.StatusBadRequest, "invalid_parameter", invalidParameterResponses))
+	}
 }
 
 func ParseJSON(r *http.Request, v any) error {

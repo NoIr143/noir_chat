@@ -1,12 +1,13 @@
 package auth
 
 import (
-	"fmt"
+	"database/sql"
 
 	"github.com/noir143/noir_chat/src/configs"
 	"github.com/noir143/noir_chat/src/database/entities"
 	"github.com/noir143/noir_chat/src/database/repositories"
 	authDto "github.com/noir143/noir_chat/src/modules/features/auth/dtos"
+	"github.com/noir143/noir_chat/src/shared/exceptions"
 	"github.com/noir143/noir_chat/src/shared/utils"
 )
 
@@ -20,19 +21,19 @@ func AuthServiceConstructor(userRepo *repositories.UserRepository) *AuthService 
 	}
 }
 
-func (authService *AuthService) Register(request authDto.RegisterDTO) (entities.User, error) {
+func (authService *AuthService) Register(request authDto.RegisterDTO) (entities.User, any) {
 	exists, err := authService.userRepo.UserExists(request.Email)
 	if err != nil {
-		return entities.User{}, fmt.Errorf("internal sever")
+		return entities.User{}, exceptions.InternalException{Error: err}
 	}
 
 	if exists {
-		return entities.User{}, fmt.Errorf("user with email %s already exists", request.Email)
+		return entities.User{}, exceptions.BadRequestException{ErrorId: "NC_0404", Message: "user_email_already_exist"}
 	}
 
 	hashedPassword, err := utils.HashPassword(request.Password)
 	if err != nil {
-		return entities.User{}, fmt.Errorf("internal server")
+		return entities.User{}, exceptions.InternalException{Error: err}
 	}
 
 	// Create new user
@@ -45,26 +46,29 @@ func (authService *AuthService) Register(request authDto.RegisterDTO) (entities.
 
 	createdUser, err := authService.userRepo.Create(user)
 	if err != nil {
-		return entities.User{}, err
+		return entities.User{}, exceptions.InternalException{Error: err}
 	}
 
 	return createdUser, nil
 }
 
-func (authService *AuthService) Login(request authDto.LoginDTO) (authDto.LoginResponseDto, error) {
+func (authService *AuthService) Login(request authDto.LoginDTO) (authDto.LoginResponseDto, any) {
 	user, err := authService.userRepo.GetByEmail(request.Email)
 	if err != nil {
-		return authDto.LoginResponseDto{}, fmt.Errorf("invalid credentials")
+		if err == sql.ErrNoRows {
+			return authDto.LoginResponseDto{}, exceptions.BadRequestException{ErrorId: "NC_600", Message: "invalid_credentials", Error: err}
+		}
+		return authDto.LoginResponseDto{}, exceptions.InternalException{Error: err}
 	}
 
 	if !utils.ComparePasswords(user.HashedPassword, []byte(request.Password)) {
-		return authDto.LoginResponseDto{}, fmt.Errorf("invalid email or password")
+		return authDto.LoginResponseDto{}, exceptions.BadRequestException{ErrorId: "NC_600", Message: "invalid_credentials", Error: err}
 	}
 
 	secret := []byte(configs.EnvConfigs.JWT_SECRET)
 	token, err := utils.CreateJWT(secret, user.ID)
 	if err != nil {
-		return authDto.LoginResponseDto{}, fmt.Errorf("invalid credentiaks")
+		return authDto.LoginResponseDto{}, exceptions.InternalException{Error: err}
 	}
 
 	return authDto.LoginResponseDto{AccessToken: token}, nil

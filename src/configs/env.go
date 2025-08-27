@@ -16,6 +16,7 @@ type EnvConfig struct {
 	DB_SSLMODE                string
 	JWT_EXPIRATION_IN_SECONDS int64
 	JWT_SECRET                string
+	ENABLE_DEBUB_MODE         bool
 }
 
 var EnvConfigs = initConfig()
@@ -32,6 +33,7 @@ func initConfig() EnvConfig {
 		DB_SSLMODE:                getEnv("DB_SSLMODE", ""),
 		JWT_EXPIRATION_IN_SECONDS: getEnvAsInt("JWT_EXPIRATION_IN_SECONDS", 3600),
 		JWT_SECRET:                getEnv("JWT_SECRET", "secret"),
+		ENABLE_DEBUB_MODE:         getEnvAsBool("ENABLE_DEBUG_MODE", false),
 	}
 }
 
@@ -45,6 +47,17 @@ func getEnv(key string, defaultValue string) string {
 func getEnvAsInt(key string, fallback int64) int64 {
 	if value, ok := os.LookupEnv(key); ok {
 		i, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return fallback
+		}
+		return i
+	}
+	return fallback
+}
+
+func getEnvAsBool(key string, fallback bool) bool {
+	if value, ok := os.LookupEnv(key); ok {
+		i, err := strconv.ParseBool(value)
 		if err != nil {
 			return fallback
 		}
