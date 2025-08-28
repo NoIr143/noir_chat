@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -21,8 +22,10 @@ func WriteError(w http.ResponseWriter, err any) {
 
 	switch v := err.(type) {
 	case exceptions.InternalException:
+		log.Println(v)
 		WriteJSON(w, http.StatusInternalServerError, exceptions.HandleExeption("NC_500", http.StatusInternalServerError, "internal_exception"))
 	case exceptions.BadRequestException:
+		log.Println(v)
 		WriteJSON(w, http.StatusBadRequest, exceptions.HandleExeption("NC_400", http.StatusBadRequest, v.Message))
 	case exceptions.NotFoundException:
 		WriteJSON(w, http.StatusNotFound, exceptions.HandleExeption("NC_404", http.StatusNotFound, "not_found"))

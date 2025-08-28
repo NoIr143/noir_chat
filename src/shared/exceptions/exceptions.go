@@ -46,6 +46,12 @@ type InvalidParamterResponse struct {
 }
 
 type ErrorResponse struct {
+	ErrorId string `json:"error_id"`
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+}
+
+type InvalidParameterExceptionResponse struct {
 	ErrorId string                    `json:"error_id"`
 	Status  int                       `json:"status"`
 	Message string                    `json:"message"`
@@ -60,8 +66,8 @@ func HandleExeption(errorId string, status int, err string) ErrorResponse {
 	}
 }
 
-func HandleInvalidParameterException(errorId string, status int, err string, errors []InvalidParamterResponse) ErrorResponse {
-	return ErrorResponse{
+func HandleInvalidParameterException(errorId string, status int, err string, errors []InvalidParamterResponse) InvalidParameterExceptionResponse {
+	return InvalidParameterExceptionResponse{
 		ErrorId: errorId,
 		Status:  status,
 		Message: getMesage(err),

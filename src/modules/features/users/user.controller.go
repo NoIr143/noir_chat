@@ -3,6 +3,7 @@ package users
 import (
 	"net/http"
 
+	"github.com/noir143/noir_chat/src/middlewares"
 	"github.com/noir143/noir_chat/src/modules/features/users/dtos"
 	"github.com/noir143/noir_chat/src/shared/utils"
 )
@@ -18,11 +19,11 @@ func UserControllerConstructor(userService *UserService) *UserController {
 }
 
 func (userController *UserController) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /users", userController.GetUsers)
-	mux.HandleFunc("POST /users", userController.CreateUser)
-	mux.HandleFunc("GET /users/{id}", userController.GetUser)
-	mux.HandleFunc("PUT /users/{id}", userController.UpdateUser)
-	mux.HandleFunc("DELETE /users/{id}", userController.DeleteUser)
+	mux.Handle("GET /users", middlewares.AuthMiddleware(http.HandlerFunc(userController.GetUsers)))
+	mux.Handle("POST /users", middlewares.AuthMiddleware(http.HandlerFunc(userController.CreateUser)))
+	mux.Handle("GET /users/{id}", middlewares.AuthMiddleware(http.HandlerFunc(userController.GetUser)))
+	mux.Handle("PUT /users/{id}", middlewares.AuthMiddleware(http.HandlerFunc(userController.UpdateUser)))
+	mux.Handle("DELETE /users/{id}", middlewares.AuthMiddleware(http.HandlerFunc(userController.DeleteUser)))
 }
 
 // CreateUser handles POST /users
